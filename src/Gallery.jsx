@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import './App.css';
 
 class Gallery extends Component {
+  playAudio(previewUrl) {
+    let audio =  new Audio(previewUrl);
+    audio.play();
+  }
+
   render() {
     const { tracks } = this.props;
     return (
@@ -15,6 +20,7 @@ class Gallery extends Component {
                   src={trackImg}
                   className="track-img"
                   alt="track"
+                  onClick={() => this.playAudio(track.preview_url)}
                 />
                 <p className="track-text">
                   {track.name}
