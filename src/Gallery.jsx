@@ -12,6 +12,10 @@ class Gallery extends Component {
   }
 
   playAudio(previewUrl) {
+    if(previewUrl===null) {
+      alert("Preview not avialable for this track! :(")
+      return;
+    }
     let audio =  new Audio(previewUrl);
     if(!this.state.playing) {
       audio.play();

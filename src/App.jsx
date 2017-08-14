@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { FormGroup, FormControl, InputGroup, Glyphicon } from 'react-bootstrap';
+import axios from 'axios';
 import Profile from './Profile';
 import Gallery from './Gallery';
 import './App.css';
@@ -19,25 +20,31 @@ class App extends Component {
     const BASE_URL = 'https://api.spotify.com/v1/search?';
     let FETCH_URL = `${BASE_URL}q=${this.state.query}&type=artist&limit=1`;
     const ALBUM_URL = 'https://api.spotify.com/v1/artists/';
+    const tokenType = "Bearer ";
+    const accessToken = 'BQBJ_2zXZbNBBafo1eEk8JoxCoXGO-JWAMJ7TvUE6B9tbd5C7MsrB-cBFtmHunjgT2eqThkB2AAEdhTxmCLccV09l6zvOuAqISJHoBfME-rZj7E9XDXv2EWcuubJzdYATZevBstfuu0nJQ5OrTm11nJ_aTFBK7Qr';
 
     /* Fetching artist data */
-    fetch(FETCH_URL, {
-      method: 'GET'
+    axios.get(FETCH_URL, {
+      headers: {
+        Authorization: tokenType+accessToken
+      }
     })
-    .then(response => response.json())
-    .then(json => {
-      const artist = json.artists.items[0];
+    .then(response => response.data)
+    .then(response => {
+      const artist = response.artists.items[0];
       this.setState({artist});
 
       FETCH_URL = `${ALBUM_URL}${artist.id}/top-tracks?country=US&`;
 
       /* Fetching artist's top tracks */
-      fetch(FETCH_URL, {
-        method: 'GET'
+      axios.get(FETCH_URL, {
+        headers: {
+          Authorization: tokenType+accessToken
+        }
       })
-      .then(response => response.json())
-      .then(json => {
-        const { tracks } = json;
+      .then(response => response.data)
+      .then(response => {
+        const { tracks } = response;
         this.setState({tracks});
       })
     });
