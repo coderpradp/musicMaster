@@ -12,31 +12,29 @@ class App extends Component {
     this.state = {
       query: '',
       artist: null,
-      tracks: []
+      tracks: [],
+      token: null
     }
   }
 
+  componentDidMount() {
+    axios.get('https://secret-badlands-32627.herokuapp.com/token').then(res => {
+      const token = res.data.access_token;
+      this.setState({token});
+    }).catch(err => {
+      console.log(err);
+    });
+  }
+
   search() {
-    const BASE_URL = 'https://api.spotify.com/v1/search?';
-    let FETCH_URL = `${BASE_URL}q=${this.state.query}&type=artist&limit=1`;
-    const ALBUM_URL = 'https://api.spotify.com/v1/artists/';
-    const tokenType = "Bearer ";
-    const accessToken = 'BQBJ_2zXZbNBBafo1eEk8JoxCoXGO-JWAMJ7TvUE6B9tbd5C7MsrB-cBFtmHunjgT2eqThkB2AAEdhTxmCLccV09l6zvOuAqISJHoBfME-rZj7E9XDXv2EWcuubJzdYATZevBstfuu0nJQ5OrTm11nJ_aTFBK7Qr';
-
-    /* Fetching artist data */
-    axios.get(FETCH_URL, {
-      headers: {
-        Authorization: tokenType+accessToken
-      }
-    })
-    .then(response => response.data)
-    .then(response => {
-      const artist = response.artists.items[0];
-      this.setState({artist});
-
-      FETCH_URL = `${ALBUM_URL}${artist.id}/top-tracks?country=US&`;
-
-      /* Fetching artist's top tracks */
+    if(this.state.token) {
+      const BASE_URL = 'https://api.spotify.com/v1/search?';
+      let FETCH_URL = `${BASE_URL}q=${this.state.query}&type=artist&limit=1`;
+      const ALBUM_URL = 'https://api.spotify.com/v1/artists/';
+      const tokenType = "Bearer ";
+      const accessToken = this.state.token;
+  
+      /* Fetching artist data */
       axios.get(FETCH_URL, {
         headers: {
           Authorization: tokenType+accessToken
@@ -44,10 +42,26 @@ class App extends Component {
       })
       .then(response => response.data)
       .then(response => {
-        const { tracks } = response;
-        this.setState({tracks});
-      })
-    });
+        const artist = response.artists.items[0];
+        this.setState({artist});
+  
+        FETCH_URL = `${ALBUM_URL}${artist.id}/top-tracks?country=US&`;
+  
+        /* Fetching artist's top tracks */
+        axios.get(FETCH_URL, {
+          headers: {
+            Authorization: tokenType+accessToken
+          }
+        })
+        .then(response => response.data)
+        .then(response => {
+          const { tracks } = response;
+          this.setState({tracks});
+        })
+      });
+    } else {
+      alert('Error generating spotify token. Please reload app or try again later.')
+    }
   }
 
   render() {
